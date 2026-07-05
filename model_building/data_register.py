@@ -1,25 +1,39 @@
-from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
+from huggingface_hub.utils import RepositoryNotFoundError
 from huggingface_hub import HfApi, create_repo
 import os
 
-
 repo_id = "jpaggarwal/Bank-Customer-Churn"
 repo_type = "dataset"
+folder_path = "mlops/data"
 
-# Initialize API client
-api = HfApi(token=os.getenv("HF_TOKEN"))
+hf_token = os.getenv("HF_TOKEN")
 
-# Step 1: Check if the space exists
+if not hf_token:
+    raise ValueError("HF_TOKEN is missing. Add it in GitHub Secrets.")
+
+if not os.path.exists(folder_path):
+    raise FileNotFoundError(f"Folder not found: {folder_path}")
+
+api = HfApi(token=hf_token)
+
 try:
     api.repo_info(repo_id=repo_id, repo_type=repo_type)
-    print(f"Space '{repo_id}' already exists. Using it.")
+    print(f"Dataset repository '{repo_id}' already exists. Using it.")
 except RepositoryNotFoundError:
-    print(f"Space '{repo_id}' not found. Creating new space...")
-    create_repo(repo_id=repo_id, repo_type=repo_type, private=False)
-    print(f"Space '{repo_id}' created.")
+    print(f"Dataset repository '{repo_id}' not found. Creating it...")
+    create_repo(
+        repo_id=repo_id,
+        repo_type=repo_type,
+        private=False,
+        token=hf_token
+    )
+    print(f"Dataset repository '{repo_id}' created.")
 
 api.upload_folder(
-    folder_path="mlops/data",
+    folder_path=folder_path,
     repo_id=repo_id,
     repo_type=repo_type,
+    token=hf_token
 )
+
+print("Dataset uploaded successfully.")
