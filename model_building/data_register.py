@@ -4,7 +4,7 @@ import os
 
 repo_id = "jpaggarwal/Bank-Customer-Churn"
 repo_type = "dataset"
-folder_path = "mlops/data"
+folder_path = "data"
 
 hf_token = os.getenv("HF_TOKEN")
 
